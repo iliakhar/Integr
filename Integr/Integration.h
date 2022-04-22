@@ -16,7 +16,7 @@ public:
 	Graphic(double startX, double endY, double h, double (*FuncForIntegr)(double x)) {
 		std::ofstream myfile("../example.csv");
 		myfile.close();
-		int size = (startX + endY) / h;
+		int size = (abs(startX) + abs(endY)) / h;
 		int k(0);
 		OutputDataValue(size, 0);
 		storageOfData.resize(size);
@@ -33,28 +33,21 @@ class Integration {
 protected:
 	std::pair<double, double> lim;
 	std::vector<ValueAndAnswer> storageOfData;
-	double h;
 	double CalculateExpression(std::vector<long double>& expression, double val);
 	long double getH(int elemInd);
+	double (*FuncForIntegr)(double x);
+	void setNewValues(double h);
 public:
-	Integration(std::pair<double, double>interval, double newH, double (*FuncForIntegr)(double x)):lim(interval), h(newH) {
+	Integration(std::pair<double, double>interval, double (*MyFuncForIntegr)(double x)):lim(interval){
 		std::ofstream myfile("../integ.csv");
 		myfile.close();
 		std::fstream mycsv("../integ.csv", std::ios::app);
 		mycsv << lim.first << "; " << lim.second << "\n";
-		//std::ifstream input(filename);
-		int size((interval.second - interval.first) / h + 1);
-		//input >> size;
-		storageOfData.resize(size);
-		double step(interval.first);
-		for (int i(0); i < size; i++) {
-			storageOfData[i].first = step;
-			storageOfData[i].second = FuncForIntegr(storageOfData[i].first);
-			step += h;
-		}
+		FuncForIntegr = MyFuncForIntegr;
 	}
 
-	double Trap();
-	double Simp();
+	double TakeIntegral(char typeInegr, double e = 0.001);
 	long double Kotes();
+	double TrapWithoutE(double h);
+	double SimpWithoutE(double h);
 };

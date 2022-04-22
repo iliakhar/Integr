@@ -1,6 +1,43 @@
 #include "Integration.h"
 
-double Integration::Trap() {
+double Integration::TakeIntegral(char typeInegr, double e) {
+	double (Integration::*IntegrationFunc)(double x);
+	double eMultiplier(0);
+	try {
+		switch (typeInegr) {
+		case 'T': IntegrationFunc = &Integration::TrapWithoutE;
+			eMultiplier = 3;
+			break;
+		case 'S': IntegrationFunc = &Integration::SimpWithoutE;
+			eMultiplier = 15;
+			break;
+		case 'K': return Kotes();
+		default:
+			throw std::string("\n\nERORR ERROR ERROR ERROR\n");
+		}
+	}
+	catch(std::string strError) {
+		std::cout << strError;
+		exit(1);
+	}
+	
+	double h, answerH1, answerH2;
+	h = lim.second - lim.first;
+	setNewValues(h);
+	answerH2 = (this->*IntegrationFunc)(h);
+	h = (lim.second - lim.first) / 2;
+	do{
+		std::cout << "\nh = " << h << "\n";
+		setNewValues(h);
+		answerH1 = answerH2;
+		answerH2 = (this->*IntegrationFunc)(h);
+		h /= 2;
+		std::cout << "\n" << answerH1 << " - " << answerH2 << " = " << answerH1 - answerH2 << "  (" << eMultiplier * e << ")\n";
+	} while (abs(answerH1 - answerH2) >= eMultiplier * e);
+	return answerH2;
+}
+
+double Integration::TrapWithoutE(double h) {
 	double answer(0);
 	std::cout << "TrapIntegral(" << lim.first << "; " << lim.second << ") = ( ";
 	for (int i(0); i < storageOfData.size() - 1; i++) {
@@ -12,7 +49,7 @@ double Integration::Trap() {
 	return answer;
 }
 
-double Integration::Simp() {
+double Integration::SimpWithoutE(double h) {
 	double even(0), uneven(0), answer(0);
 	answer = storageOfData[0].second + storageOfData[storageOfData.size() - 1].second;
 	std::cout << "SimpIntegral(" << lim.first << "; " << lim.second << ") = ( " << storageOfData[0].second <<
@@ -84,4 +121,16 @@ double Integration::CalculateExpression(std::vector<long double>& expression, do
 		degree *= val;
 	}
 	return answ;
+}
+
+void Integration::setNewValues(double h) {
+	int size((lim.second - lim.first) / h + 1);
+	//input >> size;
+	storageOfData.resize(size);
+	double step(lim.first);
+	for (int i(0); i < size; i++) {
+		storageOfData[i].first = step;
+		storageOfData[i].second = FuncForIntegr(storageOfData[i].first);
+		step += h;
+	}
 }

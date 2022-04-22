@@ -3,17 +3,19 @@
 
 double FuncForIntegr(double x) {
 	double val;
-	val = sqrt(x);
+	if (x != 0)
+		val = 1 / x;
+	else val = 0;
 	return val;
 }
 
 int main() {
 	
-	Graphic graph(0, 10, 0.1, FuncForIntegr);
-	Integration integr({ 2, 12 }, 0.2, FuncForIntegr);
-	double answ = integr.Trap();
+	Graphic graph(1, 6, 0.1, FuncForIntegr);
+	Integration integr({ 1, 2 }, FuncForIntegr);
+	integr.TakeIntegral('T', 0.001);
 	std::cout << "\n\n";
-	integr.Simp();
+	integr.TakeIntegral('S', 0.001);
 	std::cout << "\n\n";
-	integr.Kotes();
+	integr.TakeIntegral('K');
 }
